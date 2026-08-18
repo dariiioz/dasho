@@ -1,0 +1,20 @@
+services:
+  dasho:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dasho:local
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      DATABASE_URL: /data/dasho.db
+      # À activer uniquement si le résolveur doit joindre des réseaux privés.
+      ALLOW_PRIVATE_TARGETS: "false"
+      # Activez cette option uniquement pour les services internes avec un certificat non reconnu.
+      ALLOW_SELF_SIGNED_CERTIFICATES: "false"
+      # Le service externe est désactivé par défaut pour préserver la confidentialité.
+      ENABLE_EXTERNAL_FAVICON_SERVICE: "false"
+    volumes:
+      - ./data:/data

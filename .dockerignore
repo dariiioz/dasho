@@ -1,0 +1,12 @@
+.next
+node_modules
+.git
+.codex
+coverage
+data
+.env*
+!.env.example
+*.log
+*.pem
+.DS_Store
+README.md
