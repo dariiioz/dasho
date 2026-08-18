@@ -14,8 +14,9 @@ npm ci
 npm install --global pm2
 
 mkdir -p data
-export DATABASE_URL="$PWD/data/dasho.db"
-export PORT=5555 # Choisissez ici le port voulu : 5000, 5555, etc.
+cp .env.example .env
+# Éditez .env : choisissez le port et renseignez le chemin absolu de data/dasho.db.
+set -a && . ./.env && set +a
 
 npm run db:migrate
 npm run build
@@ -73,9 +74,10 @@ l'instance :
 ```bash
 git pull --ff-only
 npm ci
-DATABASE_URL="$PWD/data/dasho.db" npm run db:migrate
+set -a && . ./.env && set +a
+npm run db:migrate
 npm run build
-PORT=5555 DATABASE_URL="$PWD/data/dasho.db" pm2 restart dasho --update-env
+pm2 restart dasho --update-env
 ```
 
 La migration est idempotente et ne réapplique pas les versions déjà
