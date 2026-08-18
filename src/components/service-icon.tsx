@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { DynamicIcon, type IconName } from "lucide-react/dynamic";
 import type { Service } from "@/lib/dashboard-types";
+import { resolveLucideIcon } from "@/lib/lucide";
 import { cn } from "@/lib/utils";
 
 export function ServiceIcon({
@@ -16,6 +16,7 @@ export function ServiceIcon({
 }) {
   const size = compact ? 28 : 32;
   const classes = cn(compact ? "size-7 rounded-md" : "size-8 rounded-lg", "shrink-0", className);
+  const LucideIcon = service.iconType === "lucide" ? resolveLucideIcon(service.iconValue) : null;
 
   if (service.faviconCache) {
     return (
@@ -41,10 +42,10 @@ export function ServiceIcon({
       />
     );
   }
-  if (service.iconType === "lucide" && service.iconValue) {
+  if (LucideIcon) {
     return (
       <span className={cn(classes, "flex items-center justify-center bg-primary/10 text-primary")} aria-hidden="true">
-        <DynamicIcon name={service.iconValue as IconName} />
+        <LucideIcon />
       </span>
     );
   }

@@ -2,7 +2,6 @@
 
 import { memo, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { DynamicIcon, type IconName } from "lucide-react/dynamic";
 import {
   closestCenter,
   DndContext,
@@ -106,6 +105,7 @@ import type { FolderDraft } from "@/components/folder-editor";
 import { ServiceIcon } from "@/components/service-icon";
 import type { DashboardData, Folder, Service, ServiceDraft, ServiceStatus } from "@/lib/dashboard-types";
 import { parseDashboardSettings, type DashboardSettings } from "@/lib/dashboard-settings";
+import { resolveLucideIcon } from "@/lib/lucide";
 import { cn } from "@/lib/utils";
 
 const ServiceEditor = dynamic(() => import("@/components/service-editor").then((module) => module.ServiceEditor), { ssr: false });
@@ -257,13 +257,14 @@ function ServiceGrid({ services, editing, sortable, viewMode, cardSize, statuses
 
 function FolderSection({ folder, services, editing, sortable, viewMode, cardSize, statuses, actions, columns, draggingService, onEdit, onToggle }: { folder: Folder; services: Service[]; editing: boolean; sortable: boolean; viewMode: "grid" | "list"; cardSize: SettingsDraft["cardSize"]; statuses: Map<number, ServiceStatus | undefined>; actions: ServiceActions; columns: number; draggingService: boolean; onEdit: (folder: Folder) => void; onToggle: (folder: Folder, open: boolean) => void }) {
   const { attributes, listeners, setActivatorNodeRef, setNodeRef, transform, transition, isDragging, isOver } = useSortable({ id: `folder-${folder.id}`, data: { type: "folder", folder }, disabled: !sortable || draggingService });
+  const FolderIcon = resolveLucideIcon(folder.icon);
   return (
     <section ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }} className={cn("mb-6 scroll-mt-20 rounded-lg [content-visibility:auto]", isDragging && "opacity-45", draggingService && isOver && "bg-primary/5 ring-1 ring-primary/30")} aria-labelledby={`folder-${folder.id}-title`}>
       <div className="mb-2.5 flex min-h-7 items-center gap-1 px-0.5">
         {sortable ? <Button ref={setActivatorNodeRef} size="icon-xs" variant="ghost" aria-label={`Déplacer le dossier ${folder.name}`} {...attributes} {...listeners}><GripVertical /></Button> : null}
         <Button size="icon-xs" variant="ghost" aria-label={folder.collapsed ? `Déplier ${folder.name}` : `Replier ${folder.name}`} onClick={() => onToggle(folder, folder.collapsed)}>{folder.collapsed ? <ChevronRight /> : <ChevronDown />}</Button>
         <span className="size-2 rounded-full" style={{ backgroundColor: folder.color ?? "var(--primary)" }} />
-        {folder.icon ? isEmojiIcon(folder.icon) ? <span aria-hidden="true" className="text-sm">{folder.icon}</span> : <DynamicIcon name={folder.icon.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase() as IconName} aria-hidden="true" className="size-3.5 text-muted-foreground" /> : null}
+        {folder.icon ? isEmojiIcon(folder.icon) ? <span aria-hidden="true" className="text-sm">{folder.icon}</span> : FolderIcon ? <FolderIcon aria-hidden="true" className="size-3.5 text-muted-foreground" /> : null : null}
         <h2 id={`folder-${folder.id}-title`} className="truncate text-[12px] font-bold uppercase tracking-[0.08em] text-foreground/75">{folder.name}</h2>
         <Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px] tabular-nums">{services.length}</Badge>
         {editing ? <Button size="icon-xs" variant="ghost" aria-label={`Modifier le dossier ${folder.name}`} onClick={() => onEdit(folder)}><FolderCog /></Button> : null}
@@ -310,6 +311,10 @@ export function Dashboard() {
   const statusQueries = useQueries({ queries: statusServices.map((service) => ({ queryKey: ["status", service.id], queryFn: () => fetchStatus(service.id), refetchInterval: parsedSettings.statusCheckInterval > 0 ? parsedSettings.statusCheckInterval * 1_000 : false, refetchIntervalInBackground: false, staleTime: Math.max(parsedSettings.statusCheckInterval * 500, 1_000) })) });
   const statuses = useMemo(() => new Map(statusServices.map((service, index) => [service.id, statusQueries[index]?.data])), [statusQueries, statusServices]);
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+
+  useEffect(() => {
+    document.body.dataset.accent = parsedSettings.accent;
+  }, [parsedSettings.accent]);
 
   const saveServiceMutation = useMutation({ mutationFn: saveService, onSuccess: () => { toast.success("Service enregistré"); setServiceDraft(null); void refresh(); }, onError: (cause) => toast.error(cause instanceof Error ? cause.message : "Enregistrement impossible.") });
   const restoreServiceMutation = useMutation({ mutationFn: restoreService, onSuccess: () => { toast.success("Service restauré"); void refresh(); }, onError: () => toast.error("Restauration impossible.") });
