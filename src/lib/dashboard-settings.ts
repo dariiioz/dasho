@@ -8,7 +8,7 @@ export type DashboardSettings = {
   showSearchOnLoad: boolean;
   enableExternalFaviconService: boolean;
   viewMode: "grid" | "list" | "tags";
-  sortMode: "manual" | "alphabetical" | "recent";
+  sortMode: "manual" | "alphabetical" | "recent" | "popular";
 };
 
 export function parseDashboardSettings(settings: Record<string, string>): DashboardSettings {
@@ -22,6 +22,6 @@ export function parseDashboardSettings(settings: Record<string, string>): Dashbo
     showSearchOnLoad: settings.showSearchOnLoad === "true",
     enableExternalFaviconService: settings.enableExternalFaviconService !== "false",
     viewMode: settings.viewMode === "list" || settings.viewMode === "tags" ? settings.viewMode : "grid",
-    sortMode: settings.sortMode === "alphabetical" || settings.sortMode === "recent" ? settings.sortMode : "manual",
+    sortMode: settings.sortMode === "alphabetical" || settings.sortMode === "recent" || settings.sortMode === "popular" ? settings.sortMode : "manual",
   };
 }

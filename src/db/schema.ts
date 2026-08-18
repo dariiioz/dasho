@@ -31,6 +31,8 @@ export const services = sqliteTable(
     statusCheckEnabled: integer("status_check_enabled", { mode: "boolean" }).notNull().default(false),
     statusUrl: text("status_url"),
     tags: text("tags").notNull().default("[]"),
+    favorite: integer("favorite", { mode: "boolean" }).notNull().default(false),
+    clickCount: integer("click_count").notNull().default(0),
     position: integer("position").notNull().default(0),
     createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
@@ -38,6 +40,7 @@ export const services = sqliteTable(
   (table) => [
     index("services_folder_position_idx").on(table.folderId, table.position),
     index("services_name_idx").on(table.name),
+    index("services_popularity_idx").on(table.clickCount),
   ],
 );
 

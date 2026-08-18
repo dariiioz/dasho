@@ -147,6 +147,102 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+.dasho-atmosphere {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  contain: paint;
+}
+
+.dasho-atmosphere__glow,
+.dasho-atmosphere__pixels {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+}
+
+.dasho-atmosphere__glow {
+  top: 5rem;
+  right: -28rem;
+  width: min(80rem, 92vw);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, color-mix(in oklab, var(--primary) 9%, transparent) 0%, transparent 66%);
+  filter: blur(2px);
+}
+
+.dasho-atmosphere__pixels {
+  top: 4rem;
+  right: -23rem;
+  width: min(74rem, 88vw);
+  aspect-ratio: 1;
+  opacity: 0.72;
+  background-image: radial-gradient(circle, color-mix(in oklab, var(--primary) 44%, transparent) 1px, transparent 1.7px);
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 58% 50%, #000 0 19%, rgb(0 0 0 / 78%) 40%, transparent 73%);
+  mask-image: radial-gradient(ellipse 50% 50% at 58% 50%, #000 0 19%, rgb(0 0 0 / 78%) 40%, transparent 73%);
+  will-change: transform;
+}
+
+.dasho-atmosphere__pixels--far {
+  background-size: 14px 14px;
+  animation: dasho-pixel-drift 58s linear infinite;
+}
+
+.dasho-atmosphere__pixels--near {
+  top: 10rem;
+  right: -17rem;
+  width: min(58rem, 70vw);
+  opacity: 0.38;
+  background-size: 9px 9px;
+  -webkit-mask-image: radial-gradient(ellipse 48% 48% at 59% 48%, transparent 0 17%, #000 27%, rgb(0 0 0 / 54%) 54%, transparent 74%);
+  mask-image: radial-gradient(ellipse 48% 48% at 59% 48%, transparent 0 17%, #000 27%, rgb(0 0 0 / 54%) 54%, transparent 74%);
+  animation: dasho-pixel-float 36s ease-in-out infinite alternate;
+}
+
+.dark .dasho-atmosphere__glow {
+  background: radial-gradient(circle, color-mix(in oklab, var(--primary) 14%, transparent) 0%, transparent 66%);
+}
+
+.dark .dasho-atmosphere__pixels {
+  opacity: 0.52;
+}
+
+.dark .dasho-atmosphere__pixels--near {
+  opacity: 0.32;
+}
+
+[data-editing] .dasho-atmosphere {
+  opacity: 0.38;
+}
+
+@keyframes dasho-pixel-drift {
+  from { transform: rotate(-8deg) translate3d(-1%, -1%, 0); }
+  to { transform: rotate(7deg) translate3d(2%, 1%, 0); }
+}
+
+@keyframes dasho-pixel-float {
+  from { transform: translate3d(-1.5%, -1%, 0) scale(0.98); }
+  to { transform: translate3d(1.5%, 1%, 0) scale(1.03); }
+}
+
+@media (max-width: 640px) {
+  .dasho-atmosphere__pixels--near {
+    display: none;
+  }
+
+  .dasho-atmosphere__pixels--far {
+    right: -31rem;
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dasho-atmosphere__pixels {
+    animation: none;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

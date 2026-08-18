@@ -129,6 +129,32 @@ export async function deleteService(id: number) {
   refresh();
 }
 
+export async function restoreService(input: unknown) {
+  await writeAccess();
+  const value = serviceSchema.parse(input);
+  await db.insert(services).values({
+    ...value,
+    id: undefined,
+    tags: JSON.stringify(value.tags),
+    favorite: value.favorite ?? false,
+    clickCount: value.clickCount ?? 0,
+    position: value.position ?? (await nextServicePosition(value.folderId ?? null)),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  refresh();
+}
+
+export async function toggleServiceFavorite(id: number) {
+  await writeAccess();
+  const service = await db.select({ favorite: services.favorite }).from(services).where(eq(services.id, idSchema.parse(id))).get();
+  if (!service) throw new Error("Service introuvable.");
+  const favorite = !service.favorite;
+  await db.update(services).set({ favorite, updatedAt: new Date() }).where(eq(services.id, idSchema.parse(id)));
+  refresh();
+  return favorite;
+}
+
 export async function reorderServices(input: unknown) {
   await writeAccess();
   const items = reorderServiceSchema.parse(input);

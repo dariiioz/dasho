@@ -22,6 +22,8 @@ export type Service = {
   statusCheckEnabled: boolean;
   statusUrl: string | null;
   tags: string[];
+  favorite: boolean;
+  clickCount: number;
   position: number;
   createdAt: string | Date;
   updatedAt: string | Date;
